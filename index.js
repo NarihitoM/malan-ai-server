@@ -180,7 +180,7 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
       return res.json({
         file: {
           name: fileName,
-          url: `http://localhost:4200/download/${fileName}`,
+          url: `https://malan-ai-server.vercel.app/download/${fileName}`,
         },
       });
     }
