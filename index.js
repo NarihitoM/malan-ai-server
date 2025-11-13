@@ -20,7 +20,7 @@ const userId = "default";
 
 const token = process.env.API_KEY;
 const endpoint = "https://models.github.ai/inference";
-const model = "meta/Llama-4-Maverick-17B-128E-Instruct-FP8";
+const model = "microsoft/MAI-DS-R1";
 const client = ModelClient(endpoint, new AzureKeyCredential(token));
 
 async function analyzeImage(buffer, filename) {
@@ -126,9 +126,7 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
         const response = await client.path("/chat/completions").post({
             body: {
                 messages: history[userId],
-                temperature: 0.8,
-                top_p: 0.1,
-                max_tokens: 500,
+                max_tokens: 2048,
                 model: model
             }
         });
