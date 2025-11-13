@@ -20,8 +20,8 @@ const history = {};
 const userId = "default";
 
 const token = process.env.APIKEY;
-const endpoint = "https://models.github.ai/inference"; // ensure this is correct
-const model = "deepseek/DeepSeek-R1-0528";
+const endpoint = "https://models.github.ai/inference"; 
+const model = "meta/Llama-4-Maverick-17B-128E-Instruct-FP8";
 const client = ModelClient(endpoint, new AzureKeyCredential(token));
 
 // --- Image analysis helper ---
