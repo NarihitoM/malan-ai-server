@@ -21,7 +21,7 @@ const userId = "default";
 
 const token = process.env.APIKEY;
 const endpoint = "https://models.github.ai/inference"; 
-const model: "mistral-ai/Ministral-3B";
+const model = "mistral-ai/Ministral-3B";
  const client = ModelClient(endpoint, new AzureKeyCredential(token));
 
 // --- Image analysis helper ---
