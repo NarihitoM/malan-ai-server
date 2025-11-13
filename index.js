@@ -5,7 +5,7 @@ import { AzureKeyCredential } from "@azure/core-auth";
 import multer from "multer";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 
@@ -17,24 +17,22 @@ app.use(express.urlencoded({ extended: true }));
 const upload = multer({ storage: multer.memoryStorage() });
 const history = {};
 const userId = "default";
-const token = process.env.API_KEY;
-const model = "gpt-4o";
-const client = ModelClient(
-    "https://models.inference.ai.azure.com",
-    new AzureKeyCredential(token)
-);
 
-//automatic prompt of img file//
+// --- LLaMA Model Setup ---
+const token = process.env["GITHUB_TOKEN"];
+const endpoint = "https://models.github.ai/inference";
+const model = "meta/Llama-4-Maverick-17B-128E-Instruct-FP8";
+const client = ModelClient(endpoint, new AzureKeyCredential(token));
+
+// --- Analyze Images ---
 async function analyzeImage(buffer, filename) {
     try {
         const base64Image = buffer.toString("base64");
-        const mimeType =
-            filename.endsWith(".jpg") || filename.endsWith(".jpeg")
-                ? "image/jpeg"
-                : "image/png";
+        const mimeType = filename.endsWith(".jpg") || filename.endsWith(".jpeg") ? "image/jpeg" : "image/png";
+
         const response = await client.path("/chat/completions").post({
             body: {
-                model: "gpt-4o",
+                model: model,
                 messages: [
                     {
                         role: "user",
@@ -42,20 +40,19 @@ async function analyzeImage(buffer, filename) {
                             { type: "text", text: `Describe this image (${filename}) in detail.` },
                             {
                                 type: "image_url",
-                                image_url: {
-                                    url: `data:${mimeType};base64,${base64Image}`,
-                                },
-                            },
-                        ],
-                    },
-                ],
-            },
+                                image_url: { url: `data:${mimeType};base64,${base64Image}` }
+                            }
+                        ]
+                    }
+                ]
+            }
         });
 
         if (isUnexpected(response)) {
             console.error("Vision API response error:", response.body);
             throw new Error(response.body?.error?.message || "Unknown vision API error");
         }
+
         const content = response.body.choices?.[0]?.message?.content?.trim() || "";
         return content || `[No description returned for ${filename}]`;
     } catch (err) {
@@ -64,9 +61,9 @@ async function analyzeImage(buffer, filename) {
     }
 }
 
+// --- Chat Endpoint ---
 app.post("/api/chat", upload.array("file"), async (req, res) => {
     const userMessage = req.body?.message || "";
-
     const files = req.files;
     const timestamp = new Date().toISOString();
 
@@ -74,27 +71,25 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
     console.log(`Time: ${timestamp}`);
     console.log('User:', userMessage);
 
-    if (!history[userId]) history[userId] = [
-        { role: "system", content: "You are a helpful AI assistant." }
-    ];
+    if (!history[userId]) history[userId] = [{ role: "system", content: "You are a helpful AI assistant." }];
 
     let aiPrompt = userMessage;
     history[userId].push({ role: "user", content: aiPrompt });
+
+    // Include server file if requested
     const includeServerFile = req.body?.includeServerFile === 'true' || req.body?.includeServerFile === '1';
     if (includeServerFile) {
         try {
             const serverFileContent = fs.readFileSync(__filename, 'utf8');
-            console.log(`Including server file: ${__filename}`);
-            console.log('Server file content (first 200 chars):', serverFileContent.slice(0, 200));
             aiPrompt += `\n\n[Server file: ${__filename}]\n${serverFileContent}`;
+            history[userId].push({ role: "user", content: `[Server file included]` });
         } catch (readErr) {
             console.error('Failed to read server file:', readErr);
         }
-
     }
 
+    // Handle uploaded files
     if (files && files.length > 0) {
-
         const textFiles = [];
         const imageFiles = [];
 
@@ -103,7 +98,7 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
             else textFiles.push(file);
         }
 
-
+        // Image analysis
         const imageAnalyses = await Promise.all(
             imageFiles.map(async (file) => {
                 const result = await analyzeImage(file.buffer, file.originalname);
@@ -111,17 +106,15 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
                 return `[Image file: ${file.originalname}]\n${result}`;
             })
         );
-
-
         if (imageAnalyses.length > 0) {
             const imgContent = imageAnalyses.join("\n\n");
             aiPrompt += "\n\n" + imgContent;
             history[userId].push({ role: "user", content: imgContent });
         }
 
+        // Text files
         for (const file of textFiles) {
             const fileContent = file.buffer.toString("utf8");
-            console.log("Text file content (first 200 chars):", fileContent.slice(0, 200));
             const textFileEntry = `[File uploaded: ${file.originalname}]\nContent:\n${fileContent}`;
             aiPrompt += "\n\n" + textFileEntry;
             history[userId].push({ role: "user", content: textFileEntry });
@@ -130,12 +123,14 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
 
     const createfile = req.body?.createfile === 'true' || req.body?.createfile === '1';
 
-
-    // Ai Reply Industry //
+    // --- LLaMA AI Reply ---
     try {
         const response = await client.path("/chat/completions").post({
             body: {
                 messages: history[userId],
+                temperature: 0.8,
+                top_p: 0.1,
+                max_tokens: 2048,
                 model: model
             }
         });
@@ -143,10 +138,12 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
         if (isUnexpected(response)) throw response.body.error;
 
         let aiReply = response.body.choices[0].message.content || "";
-
         history[userId].push({ role: "assistant", content: aiReply });
 
+        // Optional: fix naming or formatting
         aiReply = aiReply.replace(/mistral ai team/gi, "MaLan-Ai Team");
+
+        // Auto-detect code for formatting
         const languageMap = [
             { regex: /(const|let|var|function|class|import|console\.log)/, label: "javascript" },
             { regex: /(<\!DOCTYPE html|<html|<head|<body)/, label: "html" },
@@ -171,7 +168,8 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
             .map(line => line.length > 80 ? line.match(/.{1,80}(?:\s|$)/g).join("\n") : line)
             .join("\n");
 
-        console.log('AI:', aiReply);
+        console.log('AI Reply:', aiReply);
+
         if (createfile && aiReply) {
             const fileName = `Malan-Ai.txt`;
             res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
@@ -186,6 +184,5 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
         res.status(500).json({ error: "AI request failed" });
     }
 });
-
 
 export default app;
