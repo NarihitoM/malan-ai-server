@@ -18,13 +18,11 @@ const upload = multer({ storage: multer.memoryStorage() });
 const history = {};
 const userId = "default";
 
-// --- LLaMA Model Setup ---
 const token = process.env.API_KEY;
 const endpoint = "https://models.github.ai/inference";
 const model = "meta/Llama-4-Maverick-17B-128E-Instruct-FP8";
 const client = ModelClient(endpoint, new AzureKeyCredential(token));
 
-// --- Analyze Images ---
 async function analyzeImage(buffer, filename) {
     try {
         const base64Image = buffer.toString("base64");
