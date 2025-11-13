@@ -21,8 +21,8 @@ const userId = "default";
 
 const token = process.env.APIKEY;
 const endpoint = "https://models.github.ai/inference"; 
-const model = "meta/Llama-4-Maverick-17B-128E-Instruct-FP8";
-const client = ModelClient(endpoint, new AzureKeyCredential(token));
+ model: "mistral-ai/Ministral-3B";
+ const client = ModelClient(endpoint, new AzureKeyCredential(token));
 
 // --- Image analysis helper ---
 async function analyzeImage(buffer, filename) {
