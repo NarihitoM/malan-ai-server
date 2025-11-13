@@ -10,26 +10,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 
 const app = express();
-
-const allowedOrigins = [
-  "http://localhost:5173", // your frontend
-  "https://malan-ai-db.vercel.app"            // production frontend
-];
-
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow curl or mobile requests
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error("CORS not allowed"));
-  },
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
-
-// Enable preflight for POST
-app.options("*", cors());
-
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
