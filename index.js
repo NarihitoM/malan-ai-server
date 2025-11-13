@@ -128,7 +128,7 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
                 messages: history[userId],
                 temperature: 0.8,
                 top_p: 0.1,
-                max_tokens: 2048,
+                max_tokens: 500,
                 model: model
             }
         });
