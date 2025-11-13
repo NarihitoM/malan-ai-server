@@ -19,7 +19,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const history = {};
 const userId = "default";
 
-const token = process.env.API_KEY;
+const token = process.env.APIKEY;
 const endpoint = "https://models.github.ai/inference"; // ensure this is correct
 const model = "microsoft/MAI-DS-R1";
 const client = ModelClient(endpoint, new AzureKeyCredential(token));
@@ -179,4 +179,4 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
 });
 
 
-export default app;
+app.listen(5433);
