@@ -21,7 +21,7 @@ const userId = "default";
 
 const token = process.env.APIKEY;
 const endpoint = "https://models.github.ai/inference"; // ensure this is correct
-const model = "microsoft/MAI-DS-R1";
+const model = "deepseek/DeepSeek-V3-0324";
 const client = ModelClient(endpoint, new AzureKeyCredential(token));
 
 // --- Image analysis helper ---
@@ -122,7 +122,7 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
       body: {
         model: model,
         messages: history[userId],
-        max_tokens: 1024,
+        max_tokens: 512,
         temperature: 0.7,
         top_p: 0.9,
       }
