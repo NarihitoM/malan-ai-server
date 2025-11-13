@@ -178,8 +178,5 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
   }
 });
 
-// --- Start server ---
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`AI server running on port ${PORT}`));
 
 export default app;
