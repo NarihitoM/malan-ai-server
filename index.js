@@ -10,7 +10,20 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 
 const app = express();
-app.use(cors());
+import cors from "cors";
+
+const allowedOrigins = [
+  "http://localhost:5173", // your frontend
+                           // production frontend
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
