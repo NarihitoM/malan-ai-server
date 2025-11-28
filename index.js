@@ -18,7 +18,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const history = {};
 const userId = "default";
 
-const groq = new Groq({ apiKey: process.env.API_KEY });
+const groq = new Groq({ apiKey: process.env.GROK_API_KEY });
 
 // --- System prompt ---
 const systemPrompt = `
