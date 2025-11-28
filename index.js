@@ -21,11 +21,11 @@ const userId = "default";
 
 const token = process.env.APIKEY;
 const endpoint = "https://models.github.ai/inference"; 
-const model = "mistral-ai/Ministral-3B";
+const model = "deepseek/DeepSeek-R1";
  const client = ModelClient(endpoint, new AzureKeyCredential(token));
 
  const aiabout = `You are an Ai that is implement for Malan-Ai Chatbot.
- Act like you are the Malan Ai And respond neat and titely.
+ Act like you are the Malan Ai And respond neat and tidely.
  Do Not Include ** and bold format.
  Respond to user with all your efforts with better reply.
  `
@@ -41,7 +41,7 @@ async function analyzeImage(buffer, filename) {
         model: model,
         messages: [
           {
-            role:"system",
+            role: "system",
             content: aiabout,
           },
           {
