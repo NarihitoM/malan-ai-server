@@ -3,10 +3,11 @@ import cors from "cors";
 import multer from "multer";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv";
+import dotenv, { configDotenv } from "dotenv";
 import Groq from "groq-sdk";
 
-dotenv.config();
+configDotenv();
+
 const __filename = fileURLToPath(import.meta.url);
 
 const app = express();
