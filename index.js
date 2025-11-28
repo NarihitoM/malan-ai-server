@@ -21,7 +21,7 @@ const userId = "default";
 
 const token = process.env.APIKEY;
 const endpoint = "https://models.github.ai/inference"; 
-const model = "deepseek/DeepSeek-R1";
+const model = "openai/gpt-4o";
  const client = ModelClient(endpoint, new AzureKeyCredential(token));
 
  const aiabout = `You are an Ai that is implement for Malan-Ai Chatbot.
