@@ -68,7 +68,7 @@ app.post("/api/chat", upload.array("file"), async (req, res) => {
   // 5️⃣ Generate AI response
   try {
     const response = await groq.chat.completions.create({
-      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      model: "llama-3.3-70b-versatile",
       messages: history[userId],
       max_tokens: 512,
       temperature: 0.7,
