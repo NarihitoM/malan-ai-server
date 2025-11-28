@@ -24,6 +24,11 @@ const endpoint = "https://models.github.ai/inference";
 const model = "mistral-ai/Ministral-3B";
  const client = ModelClient(endpoint, new AzureKeyCredential(token));
 
+ const aiabout = `You are an Ai that is implement for Malan-Ai Chatbot.
+ Act like you are the Malan Ai And respond neat and titely.
+ Do Not Include ** and bold format.
+ Respond to user with all your efforts with better reply.
+ `
 // --- Image analysis helper ---
 async function analyzeImage(buffer, filename) {
   try {
@@ -35,6 +40,10 @@ async function analyzeImage(buffer, filename) {
       body: {
         model: model,
         messages: [
+          {
+            role:"system",
+            content: aiabout,
+          },
           {
             role: "user",
             content: [
